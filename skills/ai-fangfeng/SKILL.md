@@ -23,13 +23,13 @@ description: 检查或配置 Windows 上 Clash Verge Rev + Claude Code / Codex �
 
 ## 配置模式
 
-按 `docs/机场版.md` 的 8 项逐条来，**每改一项前说一句“要改 X，可以吗”**，用户同意才动。
+先跑一次 `check.ps1` 看清现状，然后**严格按 `docs/改配置指南.md`** 逐项处理：每项怎么探测、怎么改、怎么验证、怎么回滚都写在那里。
 
-改前必须：
-1. 备份 `%APPDATA%\io.github.clash-verge-rev.clash-verge-rev` 下的 `verge.yaml`、`config.yaml`、`dns_config.yaml`、`profiles\Script.js`、`profiles\Merge.yaml`
-2. 告诉用户备份在哪
-
-改完再跑一次检查器，对比前后。
+要点：
+- 一次只改一项，改完立刻验证；不过就回滚这一项，别接着改
+- 改文件前先备份，并告诉用户备份路径
+- TUN、系统代理这类需要点界面的，让用户点，不要替他改注册表
+- 改完重跑 `check.ps1`，把“改前 / 改后”简短对比给用户
 
 ## 硬性规则
 
