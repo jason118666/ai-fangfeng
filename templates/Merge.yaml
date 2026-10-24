@@ -1,0 +1,11 @@
+# Clash Verge 全局扩展配置（Merge）
+# 只放关键词兜底：新出现的 AI 子域名也能落进 AI 组。
+# 组名请改成你订阅里实际的 AI 组名，或者用 Script.js 做行为判断。
+
+profile:
+  store-selected: true
+
+prepend-rules:
+  - DOMAIN-KEYWORD,claude,AI
+  - DOMAIN-KEYWORD,anthropic,AI
+  - DOMAIN-KEYWORD,openai,AI

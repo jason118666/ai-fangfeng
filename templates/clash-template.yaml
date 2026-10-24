@@ -1,0 +1,71 @@
+# 自建版订阅模板（写入 3x-ui 的 Clash 订阅规则）
+# 部署时替换 {{SERVER_IP}} / {{REALITY_NAME}} / {{TLS_NAME}}
+# 规则文件放在自己的服务器上，客户端从这里下载，不依赖 GitHub。
+
+mode: rule
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+profile:
+  store-selected: true
+
+dns:
+  enable: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  respect-rules: true
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://dns.google/dns-query
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  direct-nameserver:
+    - https://doh.pub/dns-query
+  direct-nameserver-follow-policy: true
+
+proxy-groups:
+  - name: AUTO-自动切换
+    type: fallback
+    proxies: ['{{REALITY_NAME}}', '{{TLS_NAME}}']
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+  - name: PROXY-代理
+    type: select
+    proxies: [AUTO-自动切换, '{{REALITY_NAME}}', '{{TLS_NAME}}']
+  - name: AI-人工智能
+    type: select
+    proxies: [AUTO-自动切换, '{{REALITY_NAME}}', '{{TLS_NAME}}', PROXY-代理]
+  - name: 直连
+    type: select
+    proxies: [DIRECT]
+  - name: 兜底
+    type: select
+    proxies: [PROXY-代理, 直连]
+
+rule-providers:
+  OpenAI:  { type: http, behavior: domain, format: yaml, url: 'https://{{SERVER_IP}}:2096/rules/openai.yaml',  path: ./ruleset/openai.yaml,  interval: 86400 }
+  Claude:  { type: http, behavior: domain, format: yaml, url: 'https://{{SERVER_IP}}:2096/rules/claude.yaml',  path: ./ruleset/claude.yaml,  interval: 86400 }
+  Gemini:  { type: http, behavior: domain, format: yaml, url: 'https://{{SERVER_IP}}:2096/rules/gemini.yaml',  path: ./ruleset/gemini.yaml,  interval: 86400 }
+  CN-Domain: { type: http, behavior: domain, format: yaml, url: 'https://{{SERVER_IP}}:2096/rules/cn-domain.yaml', path: ./ruleset/cn-domain.yaml, interval: 86400 }
+  CN-IP:   { type: http, behavior: ipcidr, format: yaml, url: 'https://{{SERVER_IP}}:2096/rules/cn-ip.yaml',    path: ./ruleset/cn-ip.yaml,    interval: 86400 }
+
+rules:
+  - IP-CIDR,{{SERVER_IP}}/32,DIRECT,no-resolve
+  - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - RULE-SET,OpenAI,AI-人工智能
+  - RULE-SET,Claude,AI-人工智能
+  - RULE-SET,Gemini,AI-人工智能
+  - DOMAIN-KEYWORD,claude,AI-人工智能
+  - DOMAIN-KEYWORD,anthropic,AI-人工智能
+  - DOMAIN-KEYWORD,openai,AI-人工智能
+  - RULE-SET,CN-Domain,直连
+  - RULE-SET,CN-IP,直连,no-resolve
+  - GEOIP,CN,直连,no-resolve
+  - MATCH,兜底

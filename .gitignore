@@ -1,0 +1,19 @@
+# 本地探测产生的缓存（不要提交）
+.guard/
+*.local.json
+
+# 系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 敏感信息：任何订阅地址、密钥、服务器信息都不要进仓库
+*.secret
+*.private
+.env
+.env.*
